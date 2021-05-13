@@ -1,5 +1,7 @@
 package com.acme.tour.controller
 
+import com.acme.tour.exception.PromocaoNotFoundException
+import com.acme.tour.model.ErrorMessage
 import com.acme.tour.model.Promocao
 import com.acme.tour.model.RespostaJSON
 import com.acme.tour.service.PromocaoService
@@ -18,11 +20,13 @@ class PromocaoController {
     lateinit var promocaoService: PromocaoService
 
     @GetMapping("/{id}")
-    fun getById(@PathVariable id: Long) : ResponseEntity<Promocao?> {
+    fun getById(@PathVariable id: Long) : ResponseEntity<Any> {
         var promocao = promocaoService.getById(id)
-
-        var status = if(promocao == null) HttpStatus.NOT_FOUND else HttpStatus.OK
-        return ResponseEntity(promocao, status)
+        return if(promocao != null)
+            return ResponseEntity(promocao, HttpStatus.OK)
+        else
+            return ResponseEntity(ErrorMessage("Promocao nao encontrada",
+                "promocao ${id} nao encontrada"), HttpStatus.NOT_FOUND)
     }
 
     @PostMapping()
